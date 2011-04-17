@@ -1,3 +1,5 @@
 == Introduction
 
 try to mix php and (akka)scala
+
+BTW: just for fun
