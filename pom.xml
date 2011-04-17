@@ -39,6 +39,11 @@
 			<artifactId>servlet-api</artifactId>
 			<version>2.5</version>
 		</dependency>
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>mail</artifactId>
+      <version>1.4.4</version>
+    </dependency>
 	</dependencies>
 	<repositories>
 		<repository>
@@ -56,6 +61,10 @@
       <name>Caucho</name>
       <url>http://caucho.com/m2</url>
     </repository>	
+    <repository>
+      <id>Java.Net</id>
+      <url>http://download.java.net/maven/2/</url>
+    </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
