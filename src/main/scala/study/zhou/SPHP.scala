@@ -1,5 +1,7 @@
 package study.zhou
 
+import com.caucho.vfs.FilePath
+
 object SPHP {
   val engine = new PHPEngine
   val quercus = engine.getQuercus
@@ -7,6 +9,7 @@ object SPHP {
   def init {
     quercus.init
     quercus.start
+    quercus.setIniFile(new FilePath("/home/zhou/maven/sphp/src/data/php.ini"))
     quercus.setIni("register_argc_argv", "on")
   }
 

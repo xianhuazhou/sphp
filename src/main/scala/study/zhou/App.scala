@@ -21,7 +21,7 @@ class LBActor extends Actor with LoadBalancer{
 object App {
   def main(argv: Array[String]) {
     SPHP.init
-    SPHP.runFile("/home/zhou/maven/sphp/src/data/my.php")
+    SPHP.runFile("/home/zhou/mytest.php")
 
     /*
     val lb = Actor.actorOf[LBActor].start

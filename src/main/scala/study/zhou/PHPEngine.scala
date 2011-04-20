@@ -20,17 +20,17 @@ import com.caucho.vfs.Path
 import com.caucho.vfs.WriteStream
 
 class PHPEngine(val phpQuercus: QuercusContext) extends QuercusEngine {
+  val encoding = "utf-8"
   
   def this() = this(new QuercusContext) 
 
   override def getQuercus: QuercusContext = phpQuercus
 
   override def execute(path: Path): Value = {
-    val reader = path.openRead()
-    val program = QuercusParser.parse(phpQuercus, null, reader)
+    val program = QuercusParser.parse(phpQuercus, path, encoding)
     val out = new WriteStream(StdoutStream.create())
     out.setNewlineString("\n");
-    out.setEncoding("utf-8");
+    out.setEncoding(encoding);
     val env = phpQuercus.createEnv(
       new InterpretedPage(program), 
       out, 

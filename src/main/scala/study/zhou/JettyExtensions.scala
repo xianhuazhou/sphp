@@ -29,6 +29,7 @@ class Request extends JettyRequest {
 
 class Response(connection: HttpConnection) extends JettyResponse(connection: HttpConnection) {
   def getHeaderNames: java.util.Collection[String] = null
+  override def setStatus(sc: Int, sm: String): Unit = {} 
 }
 
 // vim: set ts=2 sw=2 et:
