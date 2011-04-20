@@ -4,7 +4,7 @@ object SPHP {
   val engine = new PHPEngine
   val quercus = engine.getQuercus
 
-  def initPHPEngine {
+  def init {
     quercus.init
     quercus.start
     quercus.setIni("register_argc_argv", "on")

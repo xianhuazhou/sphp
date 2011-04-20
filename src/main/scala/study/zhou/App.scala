@@ -20,7 +20,7 @@ class LBActor extends Actor with LoadBalancer{
 
 object App {
   def main(argv: Array[String]) {
-    SPHP.initPHPEngine
+    SPHP.init
     SPHP.runFile("/home/zhou/maven/sphp/src/data/my.php")
 
     /*
