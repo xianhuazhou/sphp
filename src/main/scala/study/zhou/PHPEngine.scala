@@ -1,48 +1,32 @@
 package study.zhou
 
-import java.io.OutputStream
-
-import com.caucho.quercus.QuercusEngine
+import com.caucho.quercus.Quercus
 import com.caucho.quercus.QuercusContext
 
-import com.caucho.quercus.env.NullValue
-import com.caucho.quercus.env.Value
-import com.caucho.quercus.env.Env
-import com.caucho.quercus.env.BooleanValue
-
-import com.caucho.quercus.page.InterpretedPage
-import com.caucho.quercus.page.QuercusPage
-import com.caucho.quercus.parser.QuercusParser
-import com.caucho.quercus.program.QuercusProgram
-import com.caucho.vfs.StdoutStream
-
 import com.caucho.vfs.Path
+import com.caucho.vfs.StdoutStream
 import com.caucho.vfs.WriteStream
 
-class PHPEngine(val phpQuercus: QuercusContext) extends QuercusEngine {
+class PHPEngine extends Quercus {
   val encoding = "utf-8"
   
-  def this() = this(new QuercusContext) 
-
-  override def getQuercus: QuercusContext = phpQuercus
-
-  override def execute(path: Path): Value = {
-    val program = QuercusParser.parse(phpQuercus, path, encoding)
+  override def execute(path: Path): Unit = {
     val out = new WriteStream(StdoutStream.create())
     out.setNewlineString("\n");
     out.setEncoding(encoding);
-    val env = phpQuercus.createEnv(
-      new InterpretedPage(program), 
+
+    val env = createEnv(
+      parse(path), 
       out, 
       new Request, 
       new Response(null)
-    ) 
-    val value = program.execute(env)
+    )
+
+    val value = env.execute
+    env.close
 
     out.flushBuffer
     out.free
-
-    return value
   }
 }
 
