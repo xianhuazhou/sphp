@@ -1,31 +1,18 @@
 package study.zhou
 
-import com.caucho.vfs.FilePath
-import com.caucho.vfs.StringPath
+import com.caucho.resin._
 
 object SPHP {
-  val engine = new PHPEngine
+  val resin = new ResinEmbed
 
-  def init {
-    engine.init
-    engine.start
-    engine.setIniFile(new FilePath("/home/zhou/maven/sphp/src/data/php.ini"))
-    engine.setIni("register_argc_argv", "on")
+  def init(root: String) {
+    val webApp = new WebAppEmbed("/", root)
+    resin.addWebApp(webApp)
+    resin.start
   }
 
-  def runFile(file: String) {
-    try {
-      engine.execute(new FilePath(file))
-    } catch {
-      case e: Exception => {
-        println("Exception: ")
-        e.printStackTrace
-      }
-    }
-  }
-
-  def runCode(code: String) {
-    engine.execute(new StringPath(code))
+  def execute(file: String): String = {
+    resin.request("GET " + file)
   }
 }
 
