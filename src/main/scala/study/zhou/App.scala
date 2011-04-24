@@ -5,24 +5,27 @@ import akka.actor.ActorRef
 
 import akka.routing.{ LoadBalancer, CyclicIterator }
 
-class MyActor extends Actor {
+case class HttpRequestData(method: String, path: String, parameters: Map[String, String])
+
+class HttpActor extends Actor {
   def receive = {
-    case args: String => {
-      println(SPHP.execute("/get.php?" + args))
+    case HttpRequestData(method, path, parameters) => { 
+      val result = SPHP.request(method, path, parameters)
+      println(result)
     }
   }
 }
 
 class LBActor extends Actor with LoadBalancer{
-  val actors = List.fill(3)(Actor.actorOf[MyActor].start)
+  val actors = List.fill(3)(Actor.actorOf[HttpActor].start)
   val seq = new CyclicIterator[ActorRef](actors)
 }
 
 object App {
   def main(argv: Array[String]) {
-    SPHP.init("/var/www/html/test")
+    SPHP.init(8080, "/var/www/html/test")
     val lb = Actor.actorOf[LBActor].start
-    for (i <- 1 to 10) lb ! ("a=%s" format i)
+    lb ! HttpRequestData("post", "/post.php", Map("a" -> "A", "b" -> "B"))
   }
 }
 
