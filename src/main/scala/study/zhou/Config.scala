@@ -6,7 +6,12 @@ object Config {
   lazy private val xml = XML.load(new java.net.URL("file:///opt/sphp/sphp.xml"))
   lazy val httpHost = query("http", "host")
   lazy val httpPort = query("http", "port").toInt
+  lazy val encoding = query("http", "encoding")
   lazy val docRoot= query("http", "doc_root") 
+
+  lazy val isDebugMode= query("debug") == "true"
+
+  lazy val serviceHost = query("service", "host")
   lazy val servicePort = query("service", "port").toInt
   lazy val actors = query("service", "actors").toInt
 

@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <sphp>
+    <debug>true</debug>
     <http>
         <host>0.0.0.0</host>
         <port>8080</port>
+        <encoding>UTF-8</encoding>
         <doc_root>/var/www/html/sphp</doc_root>
     </http>
     <service>
+        <host>0.0.0.0</host>
         <port>9779</port>
         <actors>10</actors>
     </service>

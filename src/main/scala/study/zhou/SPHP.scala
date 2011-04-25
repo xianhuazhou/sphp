@@ -13,37 +13,60 @@ import org.apache.http.protocol.HTTP
 import org.apache.http.params.BasicHttpParams
 import org.apache.http.message.BasicNameValuePair
 
-object SPHP {
-  val resin = new ResinEmbed
-  private var _host = "http://0.0.0.0"
-  private var _port = 8080
+import akka.actor.{ Actor, ActorRef }
+import akka.camel.CamelServiceManager
 
-  def init(host: String, port: Int, rootDirectory: String) {
-    _host = host 
-    _port = port
-    resin.addWebApp(new WebAppEmbed("/", rootDirectory))
+object SPHP {
+  lazy val resin = new ResinEmbed
+  private var _host: String = _ 
+  private var _port: Int = _ 
+  lazy val socketActor: ActorRef = Actor.actorOf(new SocketActor(
+    Config.serviceHost, 
+    Config.servicePort, 
+    Config.actors)
+  )
+
+  def start {
+    // start resin
+    _host = "http://" + Config.httpHost
+    _port = Config.httpPort 
+    resin.addWebApp(new WebAppEmbed("/", Config.docRoot))
     resin.addPort(new HttpEmbed(_port))
     resin.start
+
+    // start camel service
+    socketActor.start
+    CamelServiceManager.startCamelService
+
+    Logger.log("-" * 20)
+    Logger.log("\tSPHP is running: ")
+    Logger.log("\t  http : %s:%d" format (_host, _port))
+    Logger.log("\t  camel: %s:%d" format (Config.serviceHost, Config.servicePort))
+    Logger.log("\t  actors: %d" format (Config.actors))
+    Logger.log("-" * 20)
   } 
 
-  def request(method: String, path: String, parameters: Map[String, String] = Map()): String = {
+  // handle http requests (GET or POST)
+  def request(method: String, path: String, parameters: Map[String, String]): String = {
+
     val httpClient = new DefaultHttpClient
     val responseHandler = new BasicResponseHandler
     var result = ""
     var uri = "%s:%d%s" format (_host, _port, path)
 
     val params = new ArrayList[NameValuePair]
-    for((k, v) <- parameters) {
-      params.add(new BasicNameValuePair(k, v))
-    }
+    parameters.foreach(p => 
+      params.add(new BasicNameValuePair(String.valueOf(p._1), String.valueOf(p._2)))
+    )
 
     if (method == "get") {
-      uri += (if (uri.contains("?")) "&" else "?") + URLEncodedUtils.format(params, HTTP.UTF_8)
+      uri += (if (uri.contains("?")) "&" else "?") + 
+        URLEncodedUtils.format(params, Config.encoding)
       result = httpClient.execute(new HttpGet(uri), responseHandler)
 
     } else {
       val req = new HttpPost(uri)
-      req.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8))
+      req.setEntity(new UrlEncodedFormEntity(params, Config.encoding))
       result = httpClient.execute(req, responseHandler)
     }
 
