@@ -1,6 +1,6 @@
 package study.zhou
 
-import akka.actor.{ Actor, ActorRef }
+import akka.actor.{ Actor, ActorRef, Channel }
 import akka.dispatch._
 import akka.camel._
 
@@ -16,8 +16,6 @@ class SocketActor(
 
   def receive = {
     case msg: Message => {
-      self.reply("Done\n")
-
       val data = msg.bodyAs[String]
       Logger.log("-" * 20)
       Logger.log("received: %s" format data)
@@ -26,7 +24,10 @@ class SocketActor(
       try {
         process(data)
       } catch {
-        case e: Exception => e.printStackTrace
+        case e: Exception => {
+          self.reply("Failed from SocketActor")
+          e.printStackTrace
+        }
       }
     }
 
@@ -37,13 +38,16 @@ class SocketActor(
 
   private def process(data: String) {
     val tasks: List[Map[String, String]] = Json.parse(data).asInstanceOf[List[Map[String, String]]]
+    val tasksSize = tasks.size
     tasks.foreach(task => {
       val params = task.getOrElse("params", Map[String, String]()).asInstanceOf[Map[String, String]]
-      lbActor ! HttpRequestData(
+      val message = HttpRequestData(
+        self.channel,
         task("method"), 
         task("path"), 
         params
       )
+      lbActor ! message 
     })
   }
 }
