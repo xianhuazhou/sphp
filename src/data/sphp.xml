@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sphp>
+    <http>
+        <host>0.0.0.0</host>
+        <port>8080</port>
+        <doc_root>/var/www/html/sphp</doc_root>
+    </http>
+    <service>
+        <port>9779</port>
+        <actors>10</actors>
+    </service>
+</sphp>

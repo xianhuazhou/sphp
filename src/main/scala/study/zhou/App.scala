@@ -17,13 +17,13 @@ class HttpActor extends Actor {
 }
 
 class LBActor extends Actor with LoadBalancer{
-  val actors = List.fill(3)(Actor.actorOf[HttpActor].start)
+  val actors = List.fill(Config.actors)(Actor.actorOf[HttpActor].start)
   val seq = new CyclicIterator[ActorRef](actors)
 }
 
 object App {
   def main(argv: Array[String]) {
-    SPHP.init(8080, "/var/www/html/test")
+    SPHP.init("http://" + Config.httpHost, Config.httpPort, Config.docRoot)
     val lb = Actor.actorOf[LBActor].start
     lb ! HttpRequestData("post", "/post.php", Map("a" -> "A", "b" -> "B"))
   }

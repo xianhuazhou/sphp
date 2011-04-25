@@ -15,10 +15,11 @@ import org.apache.http.message.BasicNameValuePair
 
 object SPHP {
   val resin = new ResinEmbed
-  val host = "http://localhost"
+  private var _host = "http://0.0.0.0"
   private var _port = 8080
 
-  def init(port: Int, rootDirectory: String) {
+  def init(host: String, port: Int, rootDirectory: String) {
+    _host = host 
     _port = port
     resin.addWebApp(new WebAppEmbed("/", rootDirectory))
     resin.addPort(new HttpEmbed(_port))
@@ -29,7 +30,7 @@ object SPHP {
     val httpClient = new DefaultHttpClient
     val responseHandler = new BasicResponseHandler
     var result = ""
-    var uri = "%s:%d%s" format (host, _port, path)
+    var uri = "%s:%d%s" format (_host, _port, path)
 
     val params = new ArrayList[NameValuePair]
     for((k, v) <- parameters) {
