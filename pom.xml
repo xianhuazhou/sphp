@@ -105,6 +105,11 @@
                   </executions>
                   <configuration>
                       <scalaVersion>2.9.0.RC1</scalaVersion>
+                      <args>
+                          <arg>-unchecked</arg>
+                          <arg>-deprecation</arg>
+                          <arg>-explaintypes</arg>
+                      </args>
                       <jvmArgs>
                           <jvmArg>-Xms64m</jvmArg>
                           <jvmArg>-Xmx1024m</jvmArg>
