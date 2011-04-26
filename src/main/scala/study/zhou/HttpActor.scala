@@ -5,15 +5,18 @@ import com.twitter.json.Json
 
 class HttpActor extends Actor {
   def receive = {
-    case HttpRequestData(channel, method, path, parameters) => { 
+    case HttpRequestData(observer, method, path, parameters, needReply) => { 
       Logger.log("send http request: [%s] -> %s ? %s" format (method, path, parameters.toString))
       try {
         val result = SPHP.request(method, path, parameters)
-        Logger.log("processed data: %s" format Json.build(result))
-        channel ! Json.build(result)
+        Logger.log("processed data: %s" format result)
+        if (needReply) {
+          println("Reply to Observer")
+          observer ! result 
+        }
       } catch {
         case e: Exception => {
-          channel ! "Failed from HttpActor"
+          observer ! "Failed from HttpActor"
           e.printStackTrace
         }
       }

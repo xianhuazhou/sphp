@@ -1,8 +1,13 @@
 package study.zhou
 
 import akka.actor.ActorRef
-import akka.actor.Channel
 
-case class HttpRequestData(channel: Channel[Any], method: String, path: String, parameters: Map[String, String])
+case class HttpRequestData(
+  observer: ActorRef,
+  method: String, 
+  path: String, 
+  parameters: Map[String, String], 
+  needReply: Boolean
+)
 
 // vim: set ts=2 sw=2 et:
