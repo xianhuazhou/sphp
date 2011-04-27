@@ -9,7 +9,6 @@ import org.apache.http.client.utils.URLEncodedUtils
 import org.apache.http.client.methods.{ HttpGet, HttpPost }
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import org.apache.http.impl.client.BasicResponseHandler
-import org.apache.http.protocol.HTTP
 import org.apache.http.params.BasicHttpParams
 import org.apache.http.message.BasicNameValuePair
 
@@ -17,7 +16,8 @@ import akka.actor.{ Actor, ActorRef }
 import akka.camel.CamelServiceManager
 
 object SPHP {
-  lazy val resin = new ResinEmbed
+  private val resin = new ResinEmbed
+  private val _encoding: String = Config.encoding
   private var _host: String = _ 
   private var _port: Int = _ 
   lazy val socketActor: ActorRef = Actor.actorOf(new SocketActor(
@@ -49,7 +49,6 @@ object SPHP {
 
   // handle http requests (GET or POST)
   def request(method: String, path: String, parameters: Map[String, String]): String = {
-
     val httpClient = new DefaultHttpClient
     val responseHandler = new BasicResponseHandler
     var result = ""
@@ -60,14 +59,16 @@ object SPHP {
       params.add(new BasicNameValuePair(String.valueOf(p._1), String.valueOf(p._2)))
     )
 
+    // get
     if (method == "get") {
       uri += (if (uri.contains("?")) "&" else "?") + 
-        URLEncodedUtils.format(params, Config.encoding)
+        URLEncodedUtils.format(params, _encoding)
       result = httpClient.execute(new HttpGet(uri), responseHandler)
 
+    // post
     } else {
       val req = new HttpPost(uri)
-      req.setEntity(new UrlEncodedFormEntity(params, Config.encoding))
+      req.setEntity(new UrlEncodedFormEntity(params, _encoding))
       result = httpClient.execute(req, responseHandler)
     }
 

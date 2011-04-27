@@ -10,7 +10,7 @@
     <service>
         <host>0.0.0.0</host>
         <port>9779</port>
-        <actors>1000</actors>
+        <actors>4096</actors>
         <maxLineLength>10240</maxLineLength>
     </service>
 </sphp>
