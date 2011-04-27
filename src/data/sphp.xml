@@ -5,11 +5,12 @@
         <host>0.0.0.0</host>
         <port>8080</port>
         <encoding>UTF-8</encoding>
-        <doc_root>/var/www/html/sphp</doc_root>
+        <docRoot>/var/www/html/sphp</docRoot>
     </http>
     <service>
         <host>0.0.0.0</host>
         <port>9779</port>
-        <actors>10</actors>
+        <actors>1000</actors>
+        <maxLineLength>10240</maxLineLength>
     </service>
 </sphp>

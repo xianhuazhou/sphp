@@ -4,16 +4,17 @@ import scala.xml.XML
 
 object Config {
   lazy private val xml = XML.load(new java.net.URL("file:///opt/sphp/sphp.xml"))
-  lazy val httpHost = query("http", "host")
-  lazy val httpPort = query("http", "port").toInt
-  lazy val encoding = query("http", "encoding")
-  lazy val docRoot= query("http", "doc_root") 
+  val httpHost = query("http", "host")
+  val httpPort = query("http", "port").toInt
+  val encoding = query("http", "encoding")
+  val docRoot= query("http", "docRoot") 
 
-  lazy val isDebugMode= query("debug") == "true"
+  val isDebugMode= query("debug") == "true"
 
-  lazy val serviceHost = query("service", "host")
-  lazy val servicePort = query("service", "port").toInt
-  lazy val actors = query("service", "actors").toInt
+  val serviceHost = query("service", "host")
+  val servicePort = query("service", "port").toInt
+  val actors = query("service", "actors").toInt
+  val maxLineLength = query("service", "maxLineLength").toInt
 
   def query(items: String*): String = {
     var node = xml \ items.head

@@ -9,26 +9,28 @@ import com.twitter.json.Json
 class SocketActor(
   serviceHost: String, 
   servicePort: Int, 
-  numberOfActors: Int) extends Actor with Consumer {
+  numberOfActors: Int,
+  maxLineLength: Int) extends Actor with Consumer {
 
   type TASKS = List[Map[String, String]]
   type MapString = Map[String, String]
 
   private lazy val lbActor = Actor.actorOf(new LoadBalancerActor(numberOfActors)).start
 
-  def endpointUri = "mina:tcp://%s:%d?textline=true" format (serviceHost, servicePort)
+  def endpointUri = "netty:tcp://%s:%d?textline=true&decoderMaxLineLength=%d" format (serviceHost, servicePort, maxLineLength)
+
+  override def autoack = false 
 
   def receive = {
     case msg: Message => {
       val data = msg.bodyAs[String]
-      Logger.log("Received data: %s" format data)
-
       try {
+        Logger.log("Received data: %s" format data)
         process(data)
       } catch {
         case e: Exception => {
-          self.reply("[\"Failed from SocketActor\"]")
-          Logger.log("Process data failed: %s" format e.toString)
+          Logger.log("Failed from SocketActor: %s" format e.toString)
+          self.reply("[\"Failed\"]")
           e.printStackTrace
         }
       }
@@ -40,14 +42,19 @@ class SocketActor(
     val tasks: TASKS = parameters.getOrElse("tasks", Map()).asInstanceOf[TASKS]
     val replyTimes = if (parameters.getOrElse("reply", true).asInstanceOf[Boolean]) tasks.size else 0
     val needReply = replyTimes > 0 
-    if (!needReply) self.reply("[\"DONE\"]")
+    var observer: ActorRef = null
 
-    val observer = Actor.actorOf(new Observer(self.channel, replyTimes)).start
+    if (needReply) {
+      observer = Actor.actorOf(new Observer(self.channel, replyTimes)).start
+    } else {
+      self.reply(Ack)
+    }
+
     tasks.foreach(task => {
       val params = task.getOrElse("params", Map()).asInstanceOf[MapString]
       lbActor ! HttpRequestData(
         observer,
-        task("method"), 
+        task.getOrElse("method", "get").asInstanceOf[String], 
         task("path"), 
         params,
         needReply 

@@ -23,7 +23,8 @@ object SPHP {
   lazy val socketActor: ActorRef = Actor.actorOf(new SocketActor(
     Config.serviceHost, 
     Config.servicePort, 
-    Config.actors)
+    Config.actors,
+    Config.maxLineLength)
   )
 
   def start {
